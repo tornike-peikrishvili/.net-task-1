@@ -22,6 +22,28 @@ namespace Reddit.Controllers
             _context = context;
         }
 
+        [HttpPost("join-community")]
+        public async Task<IActionResult> JoinCommunity(int userId, int communityId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            var community = await _context.Communities.FindAsync(communityId);
+
+            if (user == null || community == null)
+            {
+                return NotFound();
+            }
+
+            if (user.SubscribedCommunities == null)
+            {
+                user.SubscribedCommunities = new List<Community>();
+            }
+
+            user.SubscribedCommunities.Add(community);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
         // GET: api/Users
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()

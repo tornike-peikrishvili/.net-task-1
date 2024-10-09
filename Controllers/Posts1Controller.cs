@@ -16,6 +16,25 @@ namespace Reddit.Controllers
             _context = context;
         }
 
+        [HttpPost("post-community")]
+        public async Task<ActionResult<Post>> CreatePost(Post post)
+        {
+            if (post.CommunityId.HasValue)
+            {
+                var community = await _context.Communities.FindAsync(post.CommunityId.Value);
+                if (community == null)
+                {
+                    return BadRequest("Specified community does not exist.");
+                }
+            }
+
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
+        }
+
+
         // GET: api/Posts1
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
